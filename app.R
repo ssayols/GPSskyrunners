@@ -12,6 +12,7 @@ library(shiny)
 library(XML)		# parse XML files
 library(Imap)       # calculate the geographic distance between two (sets of) points on an ellipsoid
 library(OpenStreetMap)
+library(grid)
 library(gridExtra)
 
 ##
