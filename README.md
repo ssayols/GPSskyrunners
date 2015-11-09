@@ -10,7 +10,7 @@ A working R installation plus the following R libraries:
 - XML: parse XML files
 - Imap: calculate the geographic distance between two (sets of) points on an ellipsoid
 - OpenStreetMap: get maps from the OpenStreetMap project
-- gridExtra: display matrix as graphical output
+- grid and gridExtra: display matrix as graphical output
 
 ### How to run it
 - From the [shinyapps.io hosting service](https://ssayols.shinyapps.io/GPSskyrunners).
