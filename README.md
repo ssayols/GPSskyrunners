@@ -14,7 +14,7 @@ A working R installation plus the following R libraries:
 
 ### How to run it
 - From the [shinyapps.io hosting service](https://ssayols.shinyapps.io/GPSskyrunners).
-- From within RStudio, open the file *app.R* file and click on the *Run app* button in the upper-left corner.
+- From RStudio, open the file *app.R* file and click on the *Run app* button in the upper-right corner.
 - From an R console, run from the parent folder where you cloned the git-repo:
 ```
 R> shiny::runApp("GPSskyrunners")
