@@ -1,6 +1,5 @@
 # GPSskyrunners
 Shiny app to read and interpret GPX files (XML representation of GPS coordinates).
-The idea and actually much of the code comes from a great entry in the [Rcrastinate blog](http://rcrastinate.blogspot.de/2014/09/stay-on-track-plotting-gps-tracks-with-r.html).
 
 ## How to run it
 ### Prerequisites
@@ -19,3 +18,12 @@ A working R installation plus the following R libraries:
 ```
 R> shiny::runApp("GPSskyrunners")
 ```
+
+## TODO
+
+- fix: read the GPX file only once instead of doing it at every function (tab).
+- download the map right after the GPX file is loaded.
+- show the run summary together with the map. Let the user click a km and highlight it in the map.
+
+## Acknowledgements
+The idea and actually much of the code comes from a great entry in the [Rcrastinate blog](http://rcrastinate.blogspot.de/2014/09/stay-on-track-plotting-gps-tracks-with-r.html).
