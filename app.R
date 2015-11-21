@@ -14,6 +14,7 @@ library(Imap)       # calculate the geographic distance between two (sets of) po
 library(OpenStreetMap)
 library(grid)
 library(gridExtra)
+library(leaflet)
 
 ##
 ## The server side
@@ -23,8 +24,7 @@ server <- function(input, output) {
     ##
     ## read in GPX files and output as data.frame
     ##
-    readGPX <- reactive({
-        
+    readGPX <- eventReactive(input$GPXfile, {
         # read input file
         FILE <- input$GPXfile
         if(is.null(FILE)) return(NULL)
@@ -117,23 +117,30 @@ server <- function(input, output) {
     ##   
     ## map plot
     ##
-    mapPlotWidth <- reactive( {
-        if(is.null(input$mapWidth)) return("auto")
-        input$mapWidth
-    })
-        
-    mapPlotHeight <- reactive( {
-        if(is.null(input$mapHeight)) return("auto")
-        input$mapHeight
-    })
+#     mapPlotWidth <- reactive( {
+#         if(is.null(input$mapWidth)) return("auto")
+#         input$mapWidth
+#     })
+#         
+#     mapPlotHeight <- reactive( {
+#         if(is.null(input$mapHeight)) return("auto")
+#         input$mapHeight
+#     })
     
     plotMap <- function(geodf) {
-         # get map
+        # decide map type (for compatibility with leaflet providers)
+        maptype= switch(input$maptype,
+                        OpenStreetMap.Mapnik = "osm",
+                        OpenTopoMap ="esri-topo",
+                        Thunderforest.OpenCycleMap = "opencyclemap",
+                        Stamen.Toner = "osm")
+      
+        # get map
         mar.lat <- diff(range(geodf$lat)) * .1	# margin for latitud
         mar.lon <- diff(range(geodf$lon)) * .1	# margin for longitud
         map <- openmap(c(max(geodf$lat) + mar.lat, min(geodf$lon) - mar.lon),	# upper left corner
         			   c(min(geodf$lat) - mar.lat, max(geodf$lon) + mar.lon),	# lower right corner
-        			   type=input$maptype, minNumTiles=input$numTiles)
+        			   type=maptype, minNumTiles=input$numTiles)
         transmap <- openproj(map, projection="+proj=longlat")
         
         # plot map (projection) and lines with the gps coordinates
@@ -142,13 +149,29 @@ server <- function(input, output) {
         lines(geodf$lon, geodf$lat, type="l", col=scales::alpha("red", .5), lwd=4)
     }
 
-    output$mapPlot <- renderPlot({
-        # read input file
-        geodf <- readGPX()
-        if(is.null(geodf)) return(NULL)
-        
-        plotMap(geodf)
-    }, width=mapPlotWidth, height=mapPlotHeight, units="px")
+#     output$mapPlot <- renderPlot({
+#         # read input file
+#         geodf <- readGPX()
+#         if(is.null(geodf)) return(NULL)
+#         
+#         plotMap(geodf)
+#     }, width=mapPlotWidth, height=mapPlotHeight, units="px")
+
+    ##
+    ## Interactive mapPlot: with leaflet, faster to load and interactive (zoom, move around...)
+    ##
+    output$intMapPlot <- renderLeaflet({
+      # read input file
+      geodf <- readGPX()
+      if(is.null(geodf)) return(NULL)
+      
+      df <- geodf[,c("lat", "lon")]
+      leaflet(df)  %>%
+        addTiles() %>%
+        addProviderTiles(provider=input$maptype) %>%
+        clearBounds() %>%
+        addPolylines(lng=~lon, lat=~lat)
+    })
     
     ##
     ## Run Summary
@@ -165,7 +188,7 @@ server <- function(input, output) {
     
     output$runSummary <- renderTable({
         # read input file
-        geodf <- readGPX()
+       geodf <- readGPX()
         if(is.null(geodf)) return(NULL)
         
         runSummary(geodf)
@@ -213,19 +236,21 @@ ui <- fluidPage(
                            "right" = "right"), selected="center", inline=TRUE),
             tags$hr(),
             radioButtons("maptype", "Map type:",
-                         c("OpenStreetMap" = "osm",
-                           "OpenCycleMap" = "opencyclemap",
-                           "Topographic" = "esri-topo")),
-            sliderInput("numTiles" , "Num. tiles (+resolution +download time):", min=2, max=100, value=10, ticks=FALSE),
-            sliderInput("mapWidth" , "Width (px, default: auto):" , min=100, max=10000, value=1000, step=100, ticks=FALSE),
-            sliderInput("mapHeight", "Height (px, default: auto):", min=100, max=10000, value=1000, step=100, ticks=FALSE),
+                         c("Street" = "OpenStreetMap.Mapnik", # "osm",
+                           "Topo" = "OpenTopoMap", #"esri-topo")),
+                           "Cycle" = "Thunderforest.OpenCycleMap", #opencyclemap",
+                           "Toner (only screen)" = "Stamen.Toner")),
+            sliderInput("numTiles" , "Num. tiles (only PDF download):", min=2, max=100, value=5, ticks=FALSE),
+            sliderInput("mapWidth" , "Width (px, default: auto):" , min=100, max=10000, value=600, step=100, ticks=FALSE),
+            sliderInput("mapHeight", "Height (px, default: auto):", min=100, max=10000, value=600, step=100, ticks=FALSE),
             tags$hr(),
             downloadButton("downloadData", "Download")
         ),
         mainPanel(
-            tabsetPanel(type="tabs", 
+            tabsetPanel(type="tabs",
                         tabPanel("distPlot"  , plotOutput("distPlot")),
-                        tabPanel("mapPlot"   , plotOutput("mapPlot")),
+#                       tabPanel("mapPlot"   , plotOutput("mapPlot")),
+                        tabPanel("mapPlot"   , leafletOutput("intMapPlot")),
                         tabPanel("runSummary", tableOutput("runSummary"))
             )
         )
