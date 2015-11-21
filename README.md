@@ -9,6 +9,7 @@ A working R installation plus the following R libraries:
 - XML: parse XML files
 - Imap: calculate the geographic distance between two (sets of) points on an ellipsoid
 - OpenStreetMap: get maps from the OpenStreetMap project
+- Leaflet: open-source JavaScript libraries for interactive maps
 - grid and gridExtra: display matrix as graphical output
 
 ### How to run it
@@ -20,10 +21,7 @@ R> shiny::runApp("GPSskyrunners")
 ```
 
 ## TODO
-
-- fix: read the GPX file only once instead of doing it at every function (tab).
-- download the map right after the GPX file is loaded.
-- show the run summary together with the map. Let the user click a km and highlight it in the map.
+- highlight km in the map.
 
 ## Acknowledgements
 The idea and actually much of the code comes from a great entry in the [Rcrastinate blog](http://rcrastinate.blogspot.de/2014/09/stay-on-track-plotting-gps-tracks-with-r.html).
