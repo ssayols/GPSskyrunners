@@ -22,6 +22,10 @@ R> shiny::runApp("GPSskyrunners")
 
 ## TODO
 - highlight km in the map.
+- segment speed as a heatmap
+- no tabbed UI design
+- interactive map, displaying the distance, speed and elevation based on the cursor position
+- highlight in map the position based on the cursor position in the speed/elevation summary plot
 
 ## Acknowledgements
 The idea and actually much of the code comes from a great entry in the [Rcrastinate blog](http://rcrastinate.blogspot.de/2014/09/stay-on-track-plotting-gps-tracks-with-r.html).
